@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:VisualElement name="Container" style="flex-grow: 1;" />
+        <ui:ProgressBar value="5" name="Health" high-value="10" style="height: 24px; width: 172px; flex-direction: column; background-color: rgb(2, 0, 0); scale: 2 2; left: 100px; bottom: 30px; -unity-background-image-tint-color: rgb(0, 0, 0); opacity: 0.71;" />
+    </ui:VisualElement>
+</ui:UXML>

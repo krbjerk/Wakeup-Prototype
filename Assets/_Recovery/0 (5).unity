@@ -131,8 +131,6 @@ GameObject:
   - component: {fileID: 31918170}
   - component: {fileID: 31918172}
   - component: {fileID: 31918173}
-  - component: {fileID: 31918174}
-  - component: {fileID: 31918175}
   m_Layer: 0
   m_Name: Rosci
   m_TagString: Player
@@ -154,11 +152,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   animator: {fileID: 792392237}
   CharacterAudioSource: {fileID: 1570121685}
-  currentState: 0
   RedLight: {fileID: 1160090335}
   CameraView: {fileID: 330585545}
   AimSpot: {fileID: 1559034935}
-  UI: {fileID: 31918174}
   Movement:
     JumpForce: 30
     GravityFall: 3
@@ -268,42 +264,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &31918174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 31918168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f75da22f64ad9f1439da088a2a26e049, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScript
-  uiDocument: {fileID: 31918175}
---- !u!114 &31918175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 31918168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: 01679224fbe644445b087cad73f5817f, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 8c7808d1e93dfd8439d1d151102b8a0e, type: 3}
-  m_SortingOrder: 1
-  m_Position: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
-  m_PivotReferenceSize: 0
-  m_Pivot: 0
-  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &109778457
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,7 +476,7 @@ Camera:
   far clip plane: 2000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 20
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -541,7 +501,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.18419193, y: -0.37500095, z: 0.076294795, w: 0.90533245}
-  m_LocalPosition: {x: 38.3, y: 23.5, z: -39.4}
+  m_LocalPosition: {x: 38.800007, y: 24.8, z: -38.100006}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -812,7 +772,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: d71e805c15234ab4c895a5eef1918027, type: 2}
     - target: {fileID: 919132149155446097, guid: c7f2258064306864993b7ce3c8cd7e0c, type: 3}
       propertyPath: m_Name
-      value: Box
+      value: Box (2)
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c7f2258064306864993b7ce3c8cd7e0c, type: 3}
       propertyPath: m_Layer
