@@ -43,4 +43,12 @@ public class UIScript : MonoBehaviour
 
     public void TakeDamage(int amount) => SetHealth(currentHealth - amount);
     public void Heal(int amount) => SetHealth(currentHealth + amount);
+
+    public void ShowObject(GameObject ShowObj)
+    {
+        if (ShowObj.TryGetComponent<Entities>(out Entities Entity))
+            {
+                Debug.Log(Entity.Instance.Type + " : " + Entity.Instance.Health + " HP");
+            }
+    }
 }

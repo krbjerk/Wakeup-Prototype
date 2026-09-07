@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Data;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.EventSystems;
@@ -13,15 +15,18 @@ public class CharacterControls : MonoBehaviour
     public Animator animator;
 
     public AudioSource CharacterAudioSource;
-    public enum PlayerState{Idle, Aim, Combat};
+    public enum PlayerState{Idle, Aim, Combat, Crouch};
     public PlayerState currentState = PlayerState.Idle;
     private bool AimingBool = false;
+    private bool CrouchBool = false;
 
     public Light RedLight;
 
     public Camera CameraView;
 
     public GameObject AimSpot;
+    private GameObject AimedObject;
+    public GameObject AimArmObject;
     
     public UIScript UI;
 
@@ -46,8 +51,8 @@ public class CharacterControls : MonoBehaviour
         public float Acceleration;
         public float MaxSpeed;
         public float WalkingAnimationSpeed;
-
         public AudioClip JumpSound;
+        
 
     }
     public MovementClass Movement;
@@ -64,11 +69,26 @@ public class CharacterControls : MonoBehaviour
     }
     public CollitionClass Collision;
 
+    [System.Serializable]
+    public class Gun
+    {
+        public int Damage;
+        public ParticleSystem GunTrail;
+        public AudioClip GunSound;
+        public float GunVolume;
+        
+    }
+    public Gun CurrentGun;
+    
+    private Quaternion GunRotation;
+    
+
     [SerializeField] private LayerMask GroundLayer;
     void Awake()
     {
         InputActions = new Inputs();
         animator = GetComponentInChildren<Animator>();
+        GunRotation = AimArmObject.transform.localRotation;
     }
 
     void OnEnable()
@@ -77,8 +97,11 @@ public class CharacterControls : MonoBehaviour
         InputActions.Player.Jump.performed += ctx => Movement.JumpPressed = true;
         InputActions.Player.Move.performed += ctx => Movement.MoveInput = ctx.ReadValue<Vector2>();
         InputActions.Player.Move.canceled += ctx => Movement.MoveInput = Vector2.zero;
+        InputActions.Player.Crouch.performed += ctx => CrouchBool = !CrouchBool;
         InputActions.Player.Aim.performed += ctx => AimingBool = !AimingBool;
+        InputActions.Player.Aim.performed += ctx => StateChanger();
         InputActions.Player.Shoot.performed += ctx => Shoot();
+        
 
         Movement.IsGrounded = false;
     }
@@ -100,10 +123,13 @@ public class CharacterControls : MonoBehaviour
             Movement.JumpPressed = false;
             Movement.Speed = 0;
 
+        } else if(CrouchBool == true && Movement.IsGrounded) {
+            currentState = PlayerState.Crouch;
         } else
         {
             currentState = PlayerState.Idle;
         }
+
         switch (currentState)
         {
             case PlayerState.Idle:
@@ -111,6 +137,9 @@ public class CharacterControls : MonoBehaviour
                 break;
             case PlayerState.Aim:
                 UpdateAim();
+                break;
+            case PlayerState.Crouch:
+                
                 break;
         }
     }
@@ -213,49 +242,58 @@ void MoveWithCollision(Vector3 motion)
     {
         if(currentState == PlayerState.Aim)
         {
-            StartCoroutine(LightTimer(0.1f));
-            UI.TakeDamage(2);
+            CurrentGun.GunTrail.Play();
+            CharacterAudioSource.PlayOneShot(CurrentGun.GunSound, CurrentGun.GunVolume);
+            if (AimedObject.TryGetComponent<Entities>(out Entities Entity))
+            {
+                Vector3 Direction = transform.position-AimedObject.transform.position;
+                Entity.TakeDamage(CurrentGun.Damage,Direction);
+            }
         }
-        
     }
     void UpdateIdle()
     {
-        animator.SetBool("AimingAnimation", false);
-        AimSpot.SetActive(false);
         DoGroundCheck();
         Move();
     }
 
-    void UpdateAim()
+void UpdateAim()
+{
+    
+    Ray ray = CameraView.ScreenPointToRay(Mouse.current.position.ReadValue());
+    
+    if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, GroundLayer))
     {
+        Vector3 worldPos = hit.point;
+        AimSpot.transform.position = worldPos;
+
+        Vector3 AimingDirection = AimSpot.transform.position - transform.position;
         
-        AimSpot.SetActive(true);
-        Ray ray = CameraView.ScreenPointToRay(Mouse.current.position.ReadValue());
-        animator.SetBool("AimingAnimation", true);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, GroundLayer))
-        {
-            Vector3 worldPos = hit.point;
-            AimSpot.transform.position = worldPos;
 
-            Vector3 AimingDirection = AimSpot.transform.position-transform.position;
-            AimingDirection.x *= 2f;
-            AimingDirection.z *= 2f;
-            
-            Quaternion AimingRotation = Quaternion.LookRotation(AimingDirection);
+        Quaternion FullAimingRotation = Quaternion.LookRotation(AimingDirection);
+        
+        AimingDirection.x *= 2f;
+        AimingDirection.z *= 2f;
 
-            
-            Vector3 euler = AimingRotation.eulerAngles;
-            float x = NormalizeAngle(euler.x);
-            float z = NormalizeAngle(euler.z);
+        Vector3 euler = FullAimingRotation.eulerAngles;
+        float x = NormalizeAngle(euler.x);
+        float z = NormalizeAngle(euler.z);
 
-            x = Mathf.Clamp(x, -20, 20);
-            z = Mathf.Clamp(z, -20, 20);
+        x = Mathf.Clamp(x, -20, 20);
+        z = Mathf.Clamp(z, -20, 20);
 
-            AimingRotation = Quaternion.Euler(x, euler.y, z);
+        Quaternion ClampedBodyRotation = Quaternion.Euler(x, euler.y, z);
 
-            transform.rotation = Quaternion.Slerp(transform.rotation, AimingRotation, Movement.AimingRotationSpeed * Time.deltaTime);
-        }
+        transform.rotation = Quaternion.Slerp(transform.rotation, ClampedBodyRotation, Movement.AimingRotationSpeed * Time.deltaTime);
+
+        AimArmObject.transform.rotation = Quaternion.Slerp(AimArmObject.transform.rotation, FullAimingRotation, Movement.AimingRotationSpeed * Time.deltaTime*0.8f);
+        
+        AimedObject = hit.collider.gameObject;
+        UI.ShowObject(AimedObject);
+        DoGroundCheck();
+        CalculateVerticalMotion();
     }
+}
     float NormalizeAngle(float angle)
 
     {
@@ -324,4 +362,17 @@ void MoveWithCollision(Vector3 motion)
         return new Vector3(0, vertical, 0);
     }
 
+    void StateChanger()
+    {
+        if (AimingBool)
+        {
+            AimSpot.SetActive(true);
+            animator.SetBool("AimingAnimation", true);
+        } else
+        {
+            AimArmObject.transform.localRotation = GunRotation;
+            animator.SetBool("AimingAnimation", false);
+            AimSpot.SetActive(false);
+        }
+    }
 }

@@ -689,21 +689,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &221616191
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 221616185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1a763d6e20075942a0e6ce0b2f87747, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Objects
-  Instance:
-    Health: 10
-    Weight: 1
 --- !u!1 &245361772
 GameObject:
   m_ObjectHideFlags: 0
@@ -1597,9 +1582,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c7f2258064306864993b7ce3c8cd7e0c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 221616190}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c7f2258064306864993b7ce3c8cd7e0c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 221616191}
   m_SourcePrefab: {fileID: 100100000, guid: c7f2258064306864993b7ce3c8cd7e0c, type: 3}
 --- !u!1 &792392233 stripped
 GameObject:
