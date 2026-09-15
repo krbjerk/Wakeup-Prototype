@@ -405,11 +405,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIScript
   uiDocument: {fileID: 31918175}
-  PlayerStats:
-    maxHealth: 10
-    maxAP: 6
-    APRegen: 6
-    Weight: 5
 --- !u!114 &31918175
 MonoBehaviour:
   m_ObjectHideFlags: 0

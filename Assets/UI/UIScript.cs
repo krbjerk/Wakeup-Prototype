@@ -7,25 +7,40 @@ public class UIScript : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
 
     private ProgressBar healthBar;
-    private int maxHealth = 10;
-    private int currentHealth = 10;
+
+    [System.Serializable]
+
+    public class Stats
+    {
+        public int maxHealth;
+        public int maxAP;
+        public int APRegen;
+        public int Weight;
+    }
+    public Stats PlayerStats;
+
+    private int currentHealth;
+    private int currentAP;
+
 
     private void OnEnable()
     {
+        currentHealth = PlayerStats.maxHealth;
+        currentAP = PlayerStats.maxAP;
         var root = uiDocument.rootVisualElement;
         healthBar = root.Q<ProgressBar>("Health");
 
-        healthBar.highValue = maxHealth;
+        healthBar.highValue = PlayerStats.maxHealth;
         healthBar.value = currentHealth;
-        healthBar.title = $"{currentHealth} / {maxHealth}"; 
+        healthBar.title = $"{currentHealth} / {PlayerStats.maxHealth}"; 
     }
 
     public void SetHealth(int newHealth)
     {
-        currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
+        currentHealth = Mathf.Clamp(newHealth, 0, PlayerStats.maxHealth);
         StartCoroutine(AnimateHealth(currentHealth));
         healthBar.value = currentHealth; 
-        healthBar.title = $"{currentHealth} / {maxHealth} "; 
+        healthBar.title = $"{currentHealth} / {PlayerStats.maxHealth} "; 
     }
 
     private IEnumerator AnimateHealth(int target, float duration = 0.3f)
