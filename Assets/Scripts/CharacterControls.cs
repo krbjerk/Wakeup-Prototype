@@ -144,10 +144,6 @@ public class CharacterControls : MonoBehaviour
         }
     }
 
-    
-
-
-
     void DoGroundCheck()
     {
         Movement.IsGrounded = Physics.CheckSphere(Movement.GroundCheck.position, Movement.GroundCheckRadius, GroundLayer);
@@ -246,10 +242,12 @@ void MoveWithCollision(Vector3 motion)
         {
             CurrentGun.GunTrail.Play();
             CharacterAudioSource.PlayOneShot(CurrentGun.GunSound, CurrentGun.GunVolume);
+            
             if (AimedObject.TryGetComponent<Entities>(out Entities Entity))
             {
                 Vector3 Direction = transform.position-AimedObject.transform.position;
                 Entity.TakeDamage(CurrentGun.Damage,Direction);
+                UI.UseAP(2);
             }
         }
     }

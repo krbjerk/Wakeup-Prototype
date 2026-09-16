@@ -1,0 +1,79 @@
+:root {
+}
+
+.ProgressBar {
+    height: 24px;
+    width: 172px;
+    flex-direction: column;
+    background-color: rgb(2, 0, 0);
+    scale: 2 2;
+    left: 100px;
+    bottom: 30px;
+    -unity-background-image-tint-color: rgb(0, 0, 0);
+    opacity: 0.71;
+}
+
+.EndTurn {
+    height: 50px;
+    width: 100px;
+    right: auto;
+    position: relative;
+    top: auto;
+    left: 1075px;
+    align-items: stretch;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-left-color: rgb(135, 135, 135);
+    border-right-color: rgb(135, 135, 135);
+    border-top-color: rgb(135, 135, 135);
+    border-bottom-color: rgb(135, 135, 135);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    -unity-font-definition: url("project://database/Library/unity%20default%20resources?fileID=10102&guid=0000000000000000e000000000000000&type=0#LegacyRuntime");
+    -unity-font-style: bold;
+    font-size: 12px;
+    color: rgb(215, 215, 215);
+    -unity-text-outline-width: 0;
+    -unity-text-outline-color: rgb(252, 249, 249);
+    background-color: rgb(200, 84, 84);
+    -unity-background-image-tint-color: rgb(151, 41, 41);
+    bottom: -60px;
+    transition-duration: 0.2s;
+}
+
+.EndTurn:hover {
+    border-left-color: rgb(191, 83, 83);
+    border-right-color: rgb(191, 83, 83);
+    border-top-color: rgb(191, 83, 83);
+    border-bottom-color: rgb(191, 83, 83);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    width: 100px;
+    height: 50px;
+    font-size: 13px;
+    color: rgb(225, 225, 225);
+    transition-duration: 0.2s;
+    -unity-font-style: bold;
+    text-overflow: clip;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.EndTurn:active {
+    border-left-color: rgb(229, 205, 8);
+    border-right-color: rgb(229, 205, 8);
+    border-top-color: rgb(229, 205, 8);
+    border-bottom-color: rgb(229, 205, 8);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+}

@@ -7,53 +7,76 @@ public class UIScript : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
 
     private ProgressBar healthBar;
+    private ProgressBar APBar;
 
-    [System.Serializable]
-
-    public class Stats
-    {
-        public int maxHealth;
-        public int maxAP;
-        public int APRegen;
-        public int Weight;
-    }
-    public Stats PlayerStats;
+    private ProgressBar MovementBar;
 
     private int currentHealth;
     private int currentAP;
+    private int currentMovement;
 
-
-    private void OnEnable()
+    public CharacterSheet PlayerSheet;
+    void OnEnable()
     {
-        currentHealth = PlayerStats.maxHealth;
-        currentAP = PlayerStats.maxAP;
+        currentHealth = PlayerSheet.PlayerStats.maxHealth;
+        currentAP = PlayerSheet.PlayerStats.maxAP;
+        currentMovement = PlayerSheet.PlayerStats.MovementMax;
         var root = uiDocument.rootVisualElement;
         healthBar = root.Q<ProgressBar>("Health");
+        APBar = root.Q<ProgressBar>("AP");
+        MovementBar = root.Q<ProgressBar>("Movement");
 
-        healthBar.highValue = PlayerStats.maxHealth;
+        healthBar.highValue = PlayerSheet.PlayerStats.maxHealth;
         healthBar.value = currentHealth;
-        healthBar.title = $"{currentHealth} / {PlayerStats.maxHealth}"; 
+        healthBar.title = $"{currentHealth} / {PlayerSheet.PlayerStats.maxHealth}"; 
+
+        APBar.highValue = PlayerSheet.PlayerStats.maxAP;
+        APBar.value = currentAP;
+        APBar.title = $"{currentAP} / {PlayerSheet.PlayerStats.maxAP}"; 
+
+        MovementBar.highValue = PlayerSheet.PlayerStats.MovementMax;
+        MovementBar.value = currentMovement;
+        MovementBar.title = $"{currentMovement} / {PlayerSheet.PlayerStats.MovementMax}";
+
+        var fillElement = healthBar.Q(className: "unity-progress-bar__progress");
+        fillElement.style.backgroundColor = new StyleColor(Color.red);
+        
+        var fillElement1 = APBar.Q(className: "unity-progress-bar__progress");
+        fillElement1.style.backgroundColor = new StyleColor(Color.green);
+
+        var fillElement2 = MovementBar.Q(className: "unity-progress-bar__progress");
+        fillElement2.style.backgroundColor = new StyleColor(Color.blue);
+        
     }
 
     public void SetHealth(int newHealth)
     {
-        currentHealth = Mathf.Clamp(newHealth, 0, PlayerStats.maxHealth);
-        StartCoroutine(AnimateHealth(currentHealth));
+        currentHealth = Mathf.Clamp(newHealth, 0, PlayerSheet.PlayerStats.maxHealth);
+        StartCoroutine(AnimateHealth(currentHealth, healthBar));
         healthBar.value = currentHealth; 
-        healthBar.title = $"{currentHealth} / {PlayerStats.maxHealth} "; 
+        healthBar.title = $"{currentHealth} / {PlayerSheet.PlayerStats.maxHealth} "; 
     }
 
-    private IEnumerator AnimateHealth(int target, float duration = 0.3f)
+    public void UseAP(int UsedAP)
     {
-        float start = healthBar.value;
+        currentAP = Mathf.Clamp(currentAP-UsedAP, 0, PlayerSheet.PlayerStats.maxAP);
+        StartCoroutine(AnimateHealth(currentAP, APBar));
+        APBar.value = currentAP;
+        APBar.title = $"{currentAP} / {PlayerSheet.PlayerStats.maxAP} ";
+    }
+
+
+    private IEnumerator AnimateHealth(int target, ProgressBar bar, float duration = 0.3f)
+    {
+        float start = bar.value;
         float t = 0f;
         while (t < duration)
         {
             t += Time.deltaTime;
-            healthBar.value = Mathf.Lerp(start, target, t / duration);
+            bar.value = Mathf.Lerp(start, target, t / duration);
             yield return null;
         }
-        healthBar.value = target;
+        bar.value = target;
     }
 
     public void TakeDamage(int amount) => SetHealth(currentHealth - amount);
@@ -63,7 +86,7 @@ public class UIScript : MonoBehaviour
     {
         if (ShowObj.TryGetComponent<Entities>(out Entities Entity))
             {
-                Debug.Log(Entity.Instance.Type + " : " + Entity.Instance.Health + " HP");
+                //Debug.Log(Entity.Instance.Type + " : " + Entity.Instance.Health + " HP");
             }
     }
 }

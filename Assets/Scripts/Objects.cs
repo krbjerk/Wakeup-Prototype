@@ -21,7 +21,6 @@ public class Entities : MonoBehaviour
 
     public float explosionForce = 5f;
     public float explosionRadius = 2f;
-    private bool broken = false;
 
     public void TakeDamage(int Damage, Vector3 Direction)
     {
@@ -34,7 +33,6 @@ public class Entities : MonoBehaviour
 
     public void Destroy(Vector3 Direction)
     {
-        broken = true;
 
         foreach (Transform child in transform)
         {
