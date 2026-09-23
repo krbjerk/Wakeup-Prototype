@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class CharacterSheet : MonoBehaviour
@@ -11,11 +12,12 @@ public class CharacterSheet : MonoBehaviour
         public int currentAP;
         public int APRegen;
         public int Weight;
-        public int MovementMax;
-        public int currentMovement;
+        public float MovementMax;
+        public float currentMovement;
     }
     public Stats PlayerStats;
-
+ 
+ 
 }
 
 

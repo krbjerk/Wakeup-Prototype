@@ -11,34 +11,28 @@ public class UIScript : MonoBehaviour
     private ProgressBar MovementBar;
     private Button EndTurnButton;
 
-    private int currentHealth;
-    private int currentAP;
-    private int currentMovement;
-
     public StateMachine stateMachine;
 
     public CharacterSheet PlayerSheet;
+
     void OnEnable()
     {
-        currentHealth = PlayerSheet.PlayerStats.maxHealth;
-        currentAP = PlayerSheet.PlayerStats.maxAP;
-        currentMovement = PlayerSheet.PlayerStats.MovementMax;
         var root = uiDocument.rootVisualElement;
         healthBar = root.Q<ProgressBar>("Health");
         APBar = root.Q<ProgressBar>("AP");
         MovementBar = root.Q<ProgressBar>("Movement");
 
         healthBar.highValue = PlayerSheet.PlayerStats.maxHealth;
-        healthBar.value = currentHealth;
-        healthBar.title = $"{currentHealth} / {PlayerSheet.PlayerStats.maxHealth}"; 
+        healthBar.value = PlayerSheet.PlayerStats.currentHealth;
+        healthBar.title = $"{PlayerSheet.PlayerStats.currentHealth} / {PlayerSheet.PlayerStats.maxHealth}"; 
 
         APBar.highValue = PlayerSheet.PlayerStats.maxAP;
-        APBar.value = currentAP;
-        APBar.title = $"{currentAP} / {PlayerSheet.PlayerStats.maxAP}"; 
+        APBar.value = PlayerSheet.PlayerStats.currentAP;
+        APBar.title = $"{PlayerSheet.PlayerStats.currentAP} / {PlayerSheet.PlayerStats.maxAP}"; 
 
         MovementBar.highValue = PlayerSheet.PlayerStats.MovementMax;
-        MovementBar.value = currentMovement;
-        MovementBar.title = $"{currentMovement} / {PlayerSheet.PlayerStats.MovementMax}";
+        MovementBar.value = PlayerSheet.PlayerStats.currentMovement;
+        MovementBar.title = $"{PlayerSheet.PlayerStats.currentMovement} / {PlayerSheet.PlayerStats.MovementMax}";
 
         EndTurnButton = root.Q<Button>("EndTurn");
         EndTurnButton.clicked += () => stateMachine.PlayerTurnEnd();
@@ -51,27 +45,35 @@ public class UIScript : MonoBehaviour
 
         var fillElement2 = MovementBar.Q(className: "unity-progress-bar__progress");
         fillElement2.style.backgroundColor = new StyleColor(Color.blue);
+
+        SetHealth(PlayerSheet.PlayerStats.currentHealth);
+
         
     }
 
     public void SetHealth(int newHealth)
     {
-        currentHealth = Mathf.Clamp(newHealth, 0, PlayerSheet.PlayerStats.maxHealth);
-        StartCoroutine(AnimateHealth(currentHealth, healthBar));
-        healthBar.value = currentHealth; 
-        healthBar.title = $"{currentHealth} / {PlayerSheet.PlayerStats.maxHealth} "; 
+        PlayerSheet.PlayerStats.currentHealth = Mathf.Clamp(newHealth, 0, PlayerSheet.PlayerStats.maxHealth);
+        StartCoroutine(AnimateHealth(PlayerSheet.PlayerStats.currentHealth, healthBar));
+        healthBar.value = PlayerSheet.PlayerStats.currentHealth; 
+        healthBar.title = $"{PlayerSheet.PlayerStats.currentHealth} / {PlayerSheet.PlayerStats.maxHealth} "; 
     }
 
     public void UseAP(int UsedAP)
     {
-        currentAP = Mathf.Clamp(currentAP-UsedAP, 0, PlayerSheet.PlayerStats.maxAP);
-        StartCoroutine(AnimateHealth(currentAP, APBar));
-        APBar.value = currentAP;
-        APBar.title = $"{currentAP} / {PlayerSheet.PlayerStats.maxAP} ";
+        PlayerSheet.PlayerStats.currentAP = Mathf.Clamp(PlayerSheet.PlayerStats.currentAP - UsedAP, 0, PlayerSheet.PlayerStats.maxAP);
+        StartCoroutine(AnimateHealth(PlayerSheet.PlayerStats.currentAP, APBar));
+        APBar.value = PlayerSheet.PlayerStats.currentAP;
+        APBar.title = $"{PlayerSheet.PlayerStats.currentAP} / {PlayerSheet.PlayerStats.maxAP} ";
+    }
+    public void UseMovement(float UsedMovement)
+    {
+        StartCoroutine(AnimateHealth(UsedMovement, MovementBar, 0.1f));
+        MovementBar.value = UsedMovement;
     }
 
 
-    private IEnumerator AnimateHealth(int target, ProgressBar bar, float duration = 0.3f)
+    private IEnumerator AnimateHealth(float target, ProgressBar bar, float duration = 0.3f)
     {
         float start = bar.value;
         float t = 0f;
@@ -84,8 +86,7 @@ public class UIScript : MonoBehaviour
         bar.value = target;
     }
 
-    public void TakeDamage(int amount) => SetHealth(currentHealth - amount);
-    public void Heal(int amount) => SetHealth(currentHealth + amount);
+    public void TakeDamage(int amount) => SetHealth(PlayerSheet.PlayerStats.currentHealth - amount);
 
     public void ShowObject(GameObject ShowObj)
     {

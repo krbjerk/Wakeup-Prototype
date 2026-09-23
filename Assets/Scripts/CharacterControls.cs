@@ -29,6 +29,7 @@ public class CharacterControls : MonoBehaviour
     public GameObject AimArmObject;
     
     public UIScript UI;
+    public CharacterSheet PlayerSheet;
 
     [System.Serializable]
     public class MovementClass
@@ -52,8 +53,7 @@ public class CharacterControls : MonoBehaviour
         public float MaxSpeed;
         public float WalkingAnimationSpeed;
         public AudioClip JumpSound;
-        
-
+        public Vector3 StartMove;
     }
     public MovementClass Movement;
 
@@ -89,6 +89,7 @@ public class CharacterControls : MonoBehaviour
         InputActions = new Inputs();
         animator = GetComponentInChildren<Animator>();
         GunRotation = AimArmObject.transform.localRotation;
+        Movement.StartMove = transform.position;
     }
 
     void OnEnable()
@@ -198,6 +199,9 @@ void MoveWithCollision(Vector3 motion)
     int maxBounces = 3;
     for (int i = 0; i < maxBounces; i++)
     {
+        Vector3 clampedTarget = ClampMovement(position + remaining);
+        remaining = clampedTarget - position;
+
         float distance = remaining.magnitude;
         if (distance <= Mathf.Epsilon) break;
 
@@ -223,8 +227,6 @@ void MoveWithCollision(Vector3 motion)
             {
                 remaining = Vector3.ProjectOnPlane(leftover, hit.normal);
             }
-
-            DrawDebugCapsule(bottom, top, Collision.radius, new Color(0f, 1f, 0f, 1f));
         }
         else
         {
@@ -234,7 +236,27 @@ void MoveWithCollision(Vector3 motion)
     }
 
     transform.position = position;
+    PlayerSheet.PlayerStats.currentMovement = (float)Vector3.Distance(Movement.StartMove, transform.position);
+    UI.UseMovement((PlayerSheet.PlayerStats.MovementMax - PlayerSheet.PlayerStats.currentMovement-2f)*1.3f);
 }
+
+    Vector3 ClampMovement(Vector3 pos)
+    {
+        Vector3 center = Movement.StartMove;
+
+        Vector3 offset = pos - center;
+        offset.y = 0f;                                   // horizontal (XZ) clamp only
+
+        float maxDist = PlayerSheet.PlayerStats.MovementMax - Collision.radius;  // keep the capsule's edge inside, not just its center
+
+        if (offset.sqrMagnitude > maxDist * maxDist)
+        {
+            Vector3 clamped = center + offset.normalized * maxDist;
+            pos.x = clamped.x;
+            pos.z = clamped.z;                           // Y untouched, so gravity/jumping still work
+        }
+        return pos;
+    }
 
     void Shoot()
     {
@@ -301,40 +323,17 @@ void UpdateAim()
         return angle;
     }
 
-    void DrawDebugCapsule(Vector3 bottom, Vector3 top, float capRadius, Color color)
-        {
-        int segments = 16;
-        float angleStep = 360f / segments;
-
-        for (int i = 0; i < segments; i++)
-        {
-            float angleA = i * angleStep * Mathf.Deg2Rad;
-            float angleB = (i + 1) * angleStep * Mathf.Deg2Rad;
-
-            Vector3 offsetA = new Vector3(Mathf.Cos(angleA), 0, Mathf.Sin(angleA)) * capRadius;
-            Vector3 offsetB = new Vector3(Mathf.Cos(angleB), 0, Mathf.Sin(angleB)) * capRadius;
-
-            Debug.DrawLine(bottom + offsetA, bottom + offsetB, color, 0, false);
-            Debug.DrawLine(top + offsetA, top + offsetB, color, 0, false);
-
-            if (i % 4 == 0)
-                Debug.DrawLine(bottom + offsetA, top + offsetA, color, 0, false);
-        }
-
-        Debug.DrawLine(bottom, bottom - Vector3.up * capRadius, color, 0, false);
-        Debug.DrawLine(top, top + Vector3.up * capRadius, color, 0, false);
-    }
-
-    IEnumerator LightTimer(float duration)
-    {
-        RedLight.enabled = true;
-        yield return new WaitForSeconds(duration);
-        RedLight.enabled = false;
-    }
 
     Vector3 CalculateVerticalMotion()
     {
         float vertical = 0f;
+        if (Movement.AirTime > 20f)
+        {
+            Movement.GroundCheckRadius = 1;
+        } else
+        {
+            Movement.GroundCheckRadius = 0.4f;
+        }
         //Jump
         if (Movement.IsGrounded && Movement.JumpPressed)
         {

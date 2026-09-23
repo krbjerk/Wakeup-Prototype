@@ -14,17 +14,18 @@ public class StateMachine : MonoBehaviour
     public State CurrentState;
 
     public CharacterSheet PlayerSheet;
+    UIScript uiScript;
 
-    public void OnEnable()
+    public void Start()
     {
         CurrentState = State.PlayerTurnStart;
         PlayerTurnStart();
     }
 
+
     public void PlayerTurnStart()
     {
-        PlayerSheet.PlayerStats.currentAP = Mathf.Clamp(PlayerSheet.PlayerStats.currentAP + PlayerSheet.PlayerStats.APRegen, 0, PlayerSheet.PlayerStats.maxAP);
-        UIScript uiScript = FindObjectOfType<UIScript>();
+        uiScript = FindFirstObjectByType<UIScript>();
         uiScript.UseAP(-PlayerSheet.PlayerStats.APRegen);
         CurrentState = State.PlayerTurn;
     }
