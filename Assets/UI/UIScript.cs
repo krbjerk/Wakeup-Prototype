@@ -8,12 +8,14 @@ public class UIScript : MonoBehaviour
 
     private ProgressBar healthBar;
     private ProgressBar APBar;
-
     private ProgressBar MovementBar;
+    private Button EndTurnButton;
 
     private int currentHealth;
     private int currentAP;
     private int currentMovement;
+
+    public StateMachine stateMachine;
 
     public CharacterSheet PlayerSheet;
     void OnEnable()
@@ -37,6 +39,9 @@ public class UIScript : MonoBehaviour
         MovementBar.highValue = PlayerSheet.PlayerStats.MovementMax;
         MovementBar.value = currentMovement;
         MovementBar.title = $"{currentMovement} / {PlayerSheet.PlayerStats.MovementMax}";
+
+        EndTurnButton = root.Q<Button>("EndTurn");
+        EndTurnButton.clicked += () => stateMachine.PlayerTurnEnd();
 
         var fillElement = healthBar.Q(className: "unity-progress-bar__progress");
         fillElement.style.backgroundColor = new StyleColor(Color.red);

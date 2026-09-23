@@ -7,9 +7,12 @@ public class CharacterSheet : MonoBehaviour
     {
         public int maxHealth;
         public int maxAP;
+        public int currentHealth;
+        public int currentAP;
         public int APRegen;
         public int Weight;
         public int MovementMax;
+        public int currentMovement;
     }
     public Stats PlayerStats;
 
