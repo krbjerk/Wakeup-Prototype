@@ -12,12 +12,18 @@ public class CharacterSheet : MonoBehaviour
         public int currentAP;
         public int APRegen;
         public int Weight;
+        public float MovementperAP;
         public float MovementMax;
         public float currentMovement;
+        public int IntermidiateAP;
     }
     public Stats PlayerStats;
  
- 
+    void Awake()
+    {
+        PlayerStats.MovementMax = (PlayerStats.maxAP * PlayerStats.MovementperAP)+PlayerStats.MovementperAP;
+        PlayerStats.IntermidiateAP = PlayerStats.maxAP;
+    }
 }
 
 

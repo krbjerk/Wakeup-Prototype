@@ -54,6 +54,7 @@ public class CharacterControls : MonoBehaviour
         public float WalkingAnimationSpeed;
         public AudioClip JumpSound;
         public Vector3 StartMove;
+        public GameObject MovementRing;
     }
     public MovementClass Movement;
 
@@ -73,6 +74,7 @@ public class CharacterControls : MonoBehaviour
     public class Gun
     {
         public int Damage;
+        public int AP;
         public ParticleSystem GunTrail;
         public AudioClip GunSound;
         public float GunVolume;
@@ -99,6 +101,7 @@ public class CharacterControls : MonoBehaviour
         InputActions.Player.Move.performed += ctx => Movement.MoveInput = ctx.ReadValue<Vector2>();
         InputActions.Player.Move.canceled += ctx => Movement.MoveInput = Vector2.zero;
         InputActions.Player.Crouch.performed += ctx => CrouchBool = !CrouchBool;
+        InputActions.Player.Crouch.performed += ctx => Crouch();
         InputActions.Player.Aim.performed += ctx => AimingBool = !AimingBool;
         InputActions.Player.Aim.performed += ctx => StateChanger();
         InputActions.Player.Shoot.performed += ctx => Shoot();
@@ -128,6 +131,7 @@ public class CharacterControls : MonoBehaviour
             currentState = PlayerState.Crouch;
         } else
         {
+            animator.SetBool("CrouchAnimation", false);
             currentState = PlayerState.Idle;
         }
 
@@ -140,7 +144,6 @@ public class CharacterControls : MonoBehaviour
                 UpdateAim();
                 break;
             case PlayerState.Crouch:
-                
                 break;
         }
     }
@@ -172,14 +175,11 @@ void Move()
     else if (Movement.Speed > 0)
     {
         Movement.Speed -= Mathf.Pow(Movement.Acceleration, 3) * 1.7f;
-    }
-    else
-    {
+    } else {
         Movement.Speed = 0;
         animator.speed = 1;
         animator.SetBool("WalkingAnimation", false);
     }
-
     if (Movement.LookDirection != Vector3.zero)
     {
         Quaternion targetRotation = Quaternion.LookRotation(Movement.LookDirection);
@@ -193,27 +193,27 @@ void Move()
 
 void MoveWithCollision(Vector3 motion)
 {
-    Vector3 position = transform.position;
+    Vector3 pos = transform.position;
     Vector3 remaining = motion;
 
     int maxBounces = 3;
     for (int i = 0; i < maxBounces; i++)
     {
-        Vector3 clampedTarget = ClampMovement(position + remaining);
-        remaining = clampedTarget - position;
+        Vector3 clampedTarget = ClampMovement(pos + remaining);
+        remaining = clampedTarget - pos;
 
         float distance = remaining.magnitude;
         if (distance <= Mathf.Epsilon) break;
 
         Vector3 direction = remaining.normalized;
-        Vector3 bottom = position + Vector3.up * Collision.radius;
-        Vector3 top = position + Vector3.up * (Collision.height - Collision.radius);
+        Vector3 bottom = pos + Vector3.up * Collision.radius;
+        Vector3 top = pos + Vector3.up * (Collision.height - Collision.radius);
 
         if (Physics.CapsuleCast(bottom, top, Collision.radius, direction, out RaycastHit hit,
                 distance + Collision.skinWidth, Collision.collisionMask))
         {
             float safeDistance = Mathf.Max(hit.distance - Collision.skinWidth, 0f);
-            position += direction * safeDistance;
+            pos += direction * safeDistance;
 
             Vector3 leftover = direction * (distance - safeDistance);
 
@@ -230,14 +230,13 @@ void MoveWithCollision(Vector3 motion)
         }
         else
         {
-            position += direction * distance;
+            pos += direction * distance;
             remaining = Vector3.zero;
         }
     }
 
-    transform.position = position;
-    PlayerSheet.PlayerStats.currentMovement = (float)Vector3.Distance(Movement.StartMove, transform.position);
-    UI.UseMovement((PlayerSheet.PlayerStats.MovementMax - PlayerSheet.PlayerStats.currentMovement-2f)*1.3f);
+    transform.position = pos;
+    PlayerSheet.PlayerStats.currentMovement = Vector2.Distance(new Vector2(Movement.StartMove.x, Movement.StartMove.z), new Vector2(transform.position.x, transform.position.z));
 }
 
     Vector3 ClampMovement(Vector3 pos)
@@ -247,7 +246,7 @@ void MoveWithCollision(Vector3 motion)
         Vector3 offset = pos - center;
         offset.y = 0f;                                   // horizontal (XZ) clamp only
 
-        float maxDist = PlayerSheet.PlayerStats.MovementMax - Collision.radius;  // keep the capsule's edge inside, not just its center
+        float maxDist = PlayerSheet.PlayerStats.MovementMax;  // keep the capsule's edge inside, not just its center
 
         if (offset.sqrMagnitude > maxDist * maxDist)
         {
@@ -260,23 +259,26 @@ void MoveWithCollision(Vector3 motion)
 
     void Shoot()
     {
-        if(currentState == PlayerState.Aim)
+        if(currentState == PlayerState.Aim && PlayerSheet.PlayerStats.currentAP >= CurrentGun.AP)
         {
-            CurrentGun.GunTrail.Play();
-            CharacterAudioSource.PlayOneShot(CurrentGun.GunSound, CurrentGun.GunVolume);
             
             if (AimedObject.TryGetComponent<Entities>(out Entities Entity))
             {
+                CurrentGun.GunTrail.Play();
+                CharacterAudioSource.PlayOneShot(CurrentGun.GunSound, CurrentGun.GunVolume);
                 Vector3 Direction = transform.position-AimedObject.transform.position;
                 Entity.TakeDamage(CurrentGun.Damage,Direction);
-                UI.UseAP(2);
+                UI.UseAP(CurrentGun.AP);
+
             }
         }
     }
+
     void UpdateIdle()
     {
         DoGroundCheck();
         Move();
+        UpdateMovementAP();
     }
 
 void UpdateAim()
@@ -367,11 +369,76 @@ void UpdateAim()
         {
             AimSpot.SetActive(true);
             animator.SetBool("AimingAnimation", true);
+            ParticleSystem Ring = Movement.MovementRing.GetComponent<ParticleSystem>();
+            Ring.Stop();
         } else
         {
             AimArmObject.transform.localRotation = GunRotation;
             animator.SetBool("AimingAnimation", false);
             AimSpot.SetActive(false);
+            ParticleSystem Ring = Movement.MovementRing.GetComponent<ParticleSystem>();
+            Ring.Play();
+        }
+    }
+
+    public void UpdateMovementRing()
+    {
+        PlayerSheet.PlayerStats.MovementMax = PlayerSheet.PlayerStats.currentAP * PlayerSheet.PlayerStats.MovementperAP + PlayerSheet.PlayerStats.MovementperAP;
+        Movement.StartMove = transform.position;
+        ParticleSystem Ring = Movement.MovementRing.GetComponent<ParticleSystem>();
+        var shape = Ring.shape;
+        shape.radius = PlayerSheet.PlayerStats.MovementMax*0.78f;
+        var emission = Ring.emission;
+        emission.rateOverTime = 300 * PlayerSheet.PlayerStats.MovementMax/8;
+        Vector3 pos = Movement.MovementRing.transform.position;
+        pos = transform.position;
+        pos.y = -2;
+        Movement.MovementRing.transform.position = pos;
+    }
+
+    private int lastDisplayedAP = -1;
+
+    public void UpdateMovementAP()
+    {
+        int movementUsed = Mathf.Max(0, Mathf.CeilToInt(PlayerSheet.PlayerStats.currentMovement / PlayerSheet.PlayerStats.MovementperAP) - 1);
+        int newAP = Mathf.Max(0, PlayerSheet.PlayerStats.IntermidiateAP - movementUsed);
+
+        PlayerSheet.PlayerStats.currentAP = newAP;
+
+        if (newAP != lastDisplayedAP)
+        {
+            lastDisplayedAP = newAP;
+            UI.setAP(newAP);
+        }
+    }
+
+    private Coroutine crouchCoroutine;
+
+    void Crouch(){
+        if (AimingBool == false && Movement.IsGrounded){
+            {
+                GameObject Model = animator.gameObject;
+                Vector3 targetPos = Model.transform.position;
+                targetPos.y += CrouchBool ? -0.5f : 0.5f;
+
+                animator.SetBool("CrouchAnimation", CrouchBool);
+
+                if (crouchCoroutine != null) StopCoroutine(crouchCoroutine);
+                crouchCoroutine = StartCoroutine(MoveSmoothly(Model.transform, targetPos, 0.3f));
+            }
+
+            IEnumerator MoveSmoothly(Transform target, Vector3 destination, float duration)
+            {
+                Vector3 start = target.position;
+                float t = 0f;
+                while (t < duration)
+                {
+                    t += Time.deltaTime;
+                    target.position = Vector3.Lerp(start, destination, t / duration);
+                    yield return null;
+                }
+                target.position = destination;
+            }
         }
     }
 }

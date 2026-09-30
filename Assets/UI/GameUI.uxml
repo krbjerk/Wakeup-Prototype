@@ -2,9 +2,8 @@
     <Style src="project://database/Assets/ProgressBar.uss?fileID=7433441132597879392&amp;guid=b2d032b4432525e489fe3668fb837504&amp;type=3#ProgressBar" />
     <ui:VisualElement style="flex-grow: 1;">
         <ui:VisualElement name="Container" style="flex-grow: 1; font-size: 20px;" />
-        <ui:Button text="END TURN" name="EndTurn" class="EndTurn EndTurnactive" />
-        <ui:ProgressBar value="5" name="Health" high-value="10" class="ProgressBar" style="bottom: -30px;" />
-        <ui:ProgressBar value="6" name="AP" high-value="6" enabled="true" class="ProgressBar" style="bottom: 50px;" />
-        <ui:ProgressBar value="100" name="Movement" high-value="100" class="ProgressBar" style="bottom: 130px;" />
+        <ui:Button text="END TURN" name="EndTurn" class="EndTurn EndTurnactive" style="bottom: -50px; left: 1080px;" />
+        <ui:ProgressBar value="10" name="Health" high-value="10" class="ProgressBar" style="bottom: -10px; border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); top: auto;" />
+        <ui:ProgressBar value="6" name="AP" high-value="6" enabled="true" class="ProgressBar" style="bottom: 70px;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -3,7 +3,7 @@
 
 .ProgressBar {
     height: 24px;
-    width: 172px;
+    width: 180px;
     flex-direction: column;
     background-color: rgb(2, 0, 0);
     scale: 2 2;
@@ -11,6 +11,7 @@
     bottom: 30px;
     -unity-background-image-tint-color: rgb(0, 0, 0);
     opacity: 0.71;
+    top: auto;
 }
 
 .EndTurn {
@@ -25,10 +26,10 @@
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
-    border-left-color: rgb(135, 135, 135);
-    border-right-color: rgb(135, 135, 135);
-    border-top-color: rgb(135, 135, 135);
-    border-bottom-color: rgb(135, 135, 135);
+    border-left-color: rgb(84, 163, 200);
+    border-right-color: rgb(84, 163, 200);
+    border-top-color: rgb(84, 163, 200);
+    border-bottom-color: rgb(84, 163, 200);
     border-top-width: 5px;
     border-right-width: 5px;
     border-bottom-width: 5px;
@@ -39,17 +40,17 @@
     color: rgb(215, 215, 215);
     -unity-text-outline-width: 0;
     -unity-text-outline-color: rgb(252, 249, 249);
-    background-color: rgb(200, 84, 84);
+    background-color: rgb(84, 163, 200);
     -unity-background-image-tint-color: rgb(151, 41, 41);
     bottom: -60px;
     transition-duration: 0.2s;
 }
 
 .EndTurn:hover {
-    border-left-color: rgb(191, 83, 83);
-    border-right-color: rgb(191, 83, 83);
-    border-top-color: rgb(191, 83, 83);
-    border-bottom-color: rgb(191, 83, 83);
+    border-left-color: rgb(83, 170, 191);
+    border-right-color: rgb(83, 170, 191);
+    border-top-color: rgb(83, 170, 191);
+    border-bottom-color: rgb(83, 170, 191);
     border-top-width: 5px;
     border-right-width: 5px;
     border-bottom-width: 5px;
@@ -68,10 +69,10 @@
 }
 
 .EndTurn:active {
-    border-left-color: rgb(229, 205, 8);
-    border-right-color: rgb(229, 205, 8);
-    border-top-color: rgb(229, 205, 8);
-    border-bottom-color: rgb(229, 205, 8);
+    border-left-color: rgb(38, 38, 38);
+    border-right-color: rgb(38, 38, 38);
+    border-top-color: rgb(38, 38, 38);
+    border-bottom-color: rgb(38, 38, 38);
     border-top-width: 2px;
     border-right-width: 2px;
     border-bottom-width: 2px;

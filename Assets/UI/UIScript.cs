@@ -8,19 +8,18 @@ public class UIScript : MonoBehaviour
 
     private ProgressBar healthBar;
     private ProgressBar APBar;
-    private ProgressBar MovementBar;
     private Button EndTurnButton;
 
     public StateMachine stateMachine;
 
     public CharacterSheet PlayerSheet;
+    public CharacterControls PlayerController;
 
     void OnEnable()
     {
         var root = uiDocument.rootVisualElement;
         healthBar = root.Q<ProgressBar>("Health");
         APBar = root.Q<ProgressBar>("AP");
-        MovementBar = root.Q<ProgressBar>("Movement");
 
         healthBar.highValue = PlayerSheet.PlayerStats.maxHealth;
         healthBar.value = PlayerSheet.PlayerStats.currentHealth;
@@ -30,21 +29,15 @@ public class UIScript : MonoBehaviour
         APBar.value = PlayerSheet.PlayerStats.currentAP;
         APBar.title = $"{PlayerSheet.PlayerStats.currentAP} / {PlayerSheet.PlayerStats.maxAP}"; 
 
-        MovementBar.highValue = PlayerSheet.PlayerStats.MovementMax;
-        MovementBar.value = PlayerSheet.PlayerStats.currentMovement;
-        MovementBar.title = $"{PlayerSheet.PlayerStats.currentMovement} / {PlayerSheet.PlayerStats.MovementMax}";
-
         EndTurnButton = root.Q<Button>("EndTurn");
         EndTurnButton.clicked += () => stateMachine.PlayerTurnEnd();
 
         var fillElement = healthBar.Q(className: "unity-progress-bar__progress");
-        fillElement.style.backgroundColor = new StyleColor(Color.red);
+        fillElement.style.backgroundColor = new StyleColor(new Color32(220, 17, 17, 255));
         
         var fillElement1 = APBar.Q(className: "unity-progress-bar__progress");
-        fillElement1.style.backgroundColor = new StyleColor(Color.green);
+        fillElement1.style.backgroundColor = new StyleColor(new Color32(39, 200, 245, 255));
 
-        var fillElement2 = MovementBar.Q(className: "unity-progress-bar__progress");
-        fillElement2.style.backgroundColor = new StyleColor(Color.blue);
 
         SetHealth(PlayerSheet.PlayerStats.currentHealth);
 
@@ -63,15 +56,22 @@ public class UIScript : MonoBehaviour
     {
         PlayerSheet.PlayerStats.currentAP = Mathf.Clamp(PlayerSheet.PlayerStats.currentAP - UsedAP, 0, PlayerSheet.PlayerStats.maxAP);
         StartCoroutine(AnimateHealth(PlayerSheet.PlayerStats.currentAP, APBar));
-        APBar.value = PlayerSheet.PlayerStats.currentAP;
         APBar.title = $"{PlayerSheet.PlayerStats.currentAP} / {PlayerSheet.PlayerStats.maxAP} ";
-    }
-    public void UseMovement(float UsedMovement)
-    {
-        StartCoroutine(AnimateHealth(UsedMovement, MovementBar, 0.1f));
-        MovementBar.value = UsedMovement;
+        PlayerSheet.PlayerStats.IntermidiateAP = PlayerSheet.PlayerStats.currentAP;
+        PlayerController.UpdateMovementRing();
     }
 
+    private Coroutine apAnimCoroutine;
+
+    public void setAP(int newAP)
+    {
+        PlayerSheet.PlayerStats.currentAP = Mathf.Clamp(newAP, 0, PlayerSheet.PlayerStats.maxAP);
+
+        if (apAnimCoroutine != null) StopCoroutine(apAnimCoroutine);
+        apAnimCoroutine = StartCoroutine(AnimateHealth(PlayerSheet.PlayerStats.currentAP, APBar, 0.3f));
+
+        APBar.title = $"{PlayerSheet.PlayerStats.currentAP} / {PlayerSheet.PlayerStats.maxAP} ";
+    }
 
     private IEnumerator AnimateHealth(float target, ProgressBar bar, float duration = 0.3f)
     {
