@@ -387,7 +387,7 @@ void UpdateAim()
         Movement.StartMove = transform.position;
         ParticleSystem Ring = Movement.MovementRing.GetComponent<ParticleSystem>();
         var shape = Ring.shape;
-        shape.radius = PlayerSheet.PlayerStats.MovementMax*0.78f;
+        shape.radius = PlayerSheet.PlayerStats.MovementMax*1.1f;
         var emission = Ring.emission;
         emission.rateOverTime = 300 * PlayerSheet.PlayerStats.MovementMax/8;
         Vector3 pos = Movement.MovementRing.transform.position;
