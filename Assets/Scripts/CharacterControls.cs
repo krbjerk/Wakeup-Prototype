@@ -389,7 +389,7 @@ void UpdateAim()
         var shape = Ring.shape;
         shape.radius = PlayerSheet.PlayerStats.MovementMax*1.1f;
         var emission = Ring.emission;
-        emission.rateOverTime = 300 * PlayerSheet.PlayerStats.MovementMax/8;
+        emission.rateOverTime = 400 * PlayerSheet.PlayerStats.MovementMax/8;
         Vector3 pos = Movement.MovementRing.transform.position;
         pos = transform.position;
         pos.y = -2;
